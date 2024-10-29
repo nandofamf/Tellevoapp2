@@ -1,0 +1,32 @@
+<ion-header>
+  <ion-toolbar color="dark"> 
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/home"></ion-back-button> 
+    </ion-buttons>
+    <ion-title>Seleccionar Opcion</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <div class="button-container">
+    <ion-button expand="block" fill="solid" color="primary" class="custom-button" routerLink="/pasajero">
+      <ion-icon slot="start" name="car"></ion-icon>
+      Pasajero
+    </ion-button>
+    
+    <ion-button expand="block" fill="solid" color="secondary" class="custom-button" routerLink="/perfil">
+      <ion-icon slot="start" name="person-circle-outline"></ion-icon>
+      Perfil
+    </ion-button>
+    
+    <ion-button expand="block" fill="solid" color="tertiary" class="custom-button" routerLink="/historial">
+      <ion-icon slot="start" name="time-outline"></ion-icon>
+      Historial de solicitudes
+    </ion-button>
+    
+    <ion-button expand="block" fill="solid" color="success" class="custom-button" routerLink="/conductor">
+      <ion-icon slot="start" name="person-outline"></ion-icon>
+      Conductor
+    </ion-button>
+  </div>
+</ion-content>

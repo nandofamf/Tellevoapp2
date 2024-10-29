@@ -1,0 +1,23 @@
+<ion-header>
+  <ion-toolbar color="dark"> 
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/role-selection"></ion-back-button> 
+    </ion-buttons>
+    <ion-title>Pasajero</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-list>
+    <ion-item *ngFor="let oferta of ofertas">
+      <ion-label>
+        <h2>{{ oferta.partida }} -> {{ oferta.destino }}</h2>
+        <p>Hora de salida: {{ oferta.horaSalida }}</p>
+        <p>Capacidad Total: {{ oferta.capacidadTotal }}</p>
+        <p>Costo por persona: {{ oferta.costoPorPersona }}</p>
+        <p>Cupos ocupados: {{ oferta.asientosOcupados }} / {{ oferta.capacidadTotal }}</p>
+      </ion-label>
+      <ion-button fill="outline" (click)="tomarOferta(oferta)">Tomar</ion-button>
+    </ion-item>
+  </ion-list>
+</ion-content>
