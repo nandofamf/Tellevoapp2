@@ -1,91 +1,77 @@
-import { Component } from '@angular/core';
-import { AlertController } from '@ionic/angular';
-import { OfertasService } from '../../services/ofertas.service'; // Importar el servicio
+import { Component, OnInit } from '@angular/core';
+import { environment } from '../../../environments/environment';
+import * as mapboxgl from 'mapbox-gl';
+import { ViajeService } from '../../services/viaje.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-conductor',
   templateUrl: './conductor.page.html',
   styleUrls: ['./conductor.page.scss'],
 })
-export class ConductorPage {
-  // Variables para el formulario de Crear Viaje
-  partida: string = '';
-  destino: string = '';
-  horaSalida: string = '';
-  capacidadTotal: number = 0; 
-  costoPorPersona: number = 0; 
-  patente: string = ''; 
-  modeloAuto: string = '';
+export class ConductorPage implements OnInit {
+  map!: mapboxgl.Map;
+  asientos!: number;
+  costo!: number;
+  partida!: [number, number];
+  destinoCoord!: [number, number];
+  pasajeros: any[] = [];
 
-  // Variables para alternar entre las vistas
-  mostrarCrearViajeForm: boolean = true;  // Vista inicial
-  mostrarVerSolicitudesForm: boolean = false;
+  constructor(private viajeService: ViajeService, private router: Router) {}
 
-  // Lista de solicitudes de los pasajeros
-  solicitudes: any[] = [];
-
-  constructor(
-    private alertController: AlertController,
-    private ofertasService: OfertasService // Inyectar el servicio
-  ) {}
-
-  // Método para alternar a la vista de Crear Viaje
-  mostrarCrearViaje() {
-    this.mostrarCrearViajeForm = true;   // Mostrar la vista de crear viaje
-    this.mostrarVerSolicitudesForm = false;  // Ocultar la vista de ver solicitudes
+  ngOnInit() {
+    // Esperar a que el contenedor 'map' esté disponible
+    setTimeout(() => {
+      this.inicializarMapa();
+      this.obtenerViajes();
+    }, 1000);
   }
 
-  // Método para alternar a la vista de Ver Solicitudes
-  mostrarVerSolicitudes() {
-    this.mostrarCrearViajeForm = false;  // Ocultar la vista de crear viaje
-    this.mostrarVerSolicitudesForm = true;  // Mostrar la vista de ver solicitudes
-
-    // Obtener las solicitudes de los pasajeros
-    this.solicitudes = this.ofertasService.obtenerSolicitudes();
-  }
-
-  // Método para programar el viaje
-  async programarViaje() {
-    // Validaciones
-    if (!this.partida || !this.destino || !this.horaSalida || this.capacidadTotal <= 0 || this.costoPorPersona <= 0 || !this.patente || !this.modeloAuto) {
-      const alert = await this.alertController.create({
-        header: 'Error',
-        message: 'Por favor, completa todos los campos correctamente.',
-        buttons: ['OK']
+  inicializarMapa() {
+    // Verificar si el contenedor existe antes de crear el mapa
+    if (document.getElementById('map')) {
+      (mapboxgl as any).accessToken = environment.mapbox.accessToken;
+      this.map = new mapboxgl.Map({
+        container: 'map', // id del contenedor en el HTML
+        style: 'mapbox://styles/mapbox/streets-v11',
+        center: [-74.006, 40.7128], // Coordenadas iniciales (puedes cambiarlas)
+        zoom: 12,
       });
-      await alert.present();
+    } else {
+      console.error("El contenedor 'map' no fue encontrado.");
+    }
+  }
+
+  crearViaje() {
+    if (!this.asientos || !this.costo || !this.partida || !this.destinoCoord) {
+      console.error('Complete todos los campos antes de crear un viaje.');
       return;
     }
 
-    // Crear la oferta
-    const nuevaOferta = {
+    const viaje = {
+      asientos: this.asientos,
+      costo: this.costo,
       partida: this.partida,
-      destino: this.destino,
-      horaSalida: this.horaSalida,
-      capacidadTotal: this.capacidadTotal,
-      costoPorPersona: this.costoPorPersona,
-      patente: this.patente,
-      modeloAuto: this.modeloAuto,
-      asientosOcupados: 0
+      destino: this.destinoCoord,
+      pasajeros: [],
     };
 
-    this.ofertasService.agregarOferta(nuevaOferta);
+    this.viajeService.crearViaje(viaje)
+      .then(() => {
+        console.log('Viaje creado exitosamente');
+      })
+      .catch((error) => {
+        console.error('Error al crear el viaje:', error);
+      });
+  }
 
-    // Mostrar mensaje de confirmación
-    const alert = await this.alertController.create({
-      header: 'Oferta Creada',
-      message: 'Se ha creado la oferta con éxito.',
-      buttons: ['OK']
+  obtenerViajes() {
+    this.viajeService.obtenerViajes().subscribe((viajes: any[]) => {
+      this.pasajeros = viajes.reduce((acc, viaje) => acc.concat(viaje.pasajeros), []);
     });
-    await alert.present();
+  }
 
-    // Limpiar los campos
-    this.partida = '';
-    this.destino = '';
-    this.horaSalida = '';
-    this.capacidadTotal = 0;
-    this.costoPorPersona = 0;
-    this.patente = '';
-    this.modeloAuto = '';
+  verHistorial() {
+    this.router.navigate(['/historial']);
   }
 }

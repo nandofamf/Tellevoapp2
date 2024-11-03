@@ -1,72 +1,53 @@
 <ion-header>
-  <ion-toolbar color="dark"> 
-    <ion-buttons slot="start">
-      <ion-back-button defaultHref="/role-selection"></ion-back-button> 
-    </ion-buttons>
+  <ion-toolbar color="dark">
     <ion-title>Conductor</ion-title>
+    <ion-buttons slot="end">
+      <ion-button routerLink="/perfil">
+        <ion-icon name="person-circle-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
-<ion-content>
-  <!-- Botones para alternar entre las vistas -->
-  <div class="button-container">
-    <!-- El evento click debe llamar correctamente a los métodos -->
-    <ion-button expand="block" fill="solid" (click)="mostrarCrearViaje()">Crear Viaje</ion-button>
-    <ion-button expand="block" fill="solid" (click)="mostrarVerSolicitudes()">Ver Solicitudes</ion-button>
-  </div>
+<ion-content color="dark" fullscreen>
+  <div class="content-container">
+    <ion-card class="info-card">
+      <ion-card-header>
+        <ion-card-title class="card-title">Solicitudes de Pasajeros</ion-card-title>
+        <ion-card-subtitle class="card-subtitle">Lista de pasajeros que aceptaron el viaje</ion-card-subtitle>
+      </ion-card-header>
+      <ion-card-content>
+        <!-- Lista de pasajeros que aceptaron el viaje -->
+        <ion-list *ngIf="pasajeros && pasajeros.length > 0; else noPasajeros">
+          <ion-item *ngFor="let pasajero of pasajeros">
+            <ion-label *ngIf="pasajero">
+              <h2>{{ pasajero.email }}</h2>
+              <p *ngIf="pasajero.ubicacion">Ubicación: Lat {{ pasajero.ubicacion?.lat }}, Lng {{ pasajero.ubicacion?.lng }}</p>
+            </ion-label>
+          </ion-item>
+        </ion-list>
+        <ng-template #noPasajeros>
+          <ion-label class="empty-label">No hay solicitudes de pasajeros por el momento.</ion-label>
+        </ng-template>
+      </ion-card-content>
+    </ion-card>
 
-  <!-- Vista para Crear Viaje -->
-  <div *ngIf="mostrarCrearViajeForm">
-    <ion-list>
-      <ion-item>
-        <ion-label position="floating">Partida</ion-label>
-        <ion-input [(ngModel)]="partida" type="text"></ion-input>
-      </ion-item>
+    <div class="action-buttons">
+      <ion-button expand="block" (click)="crearViaje()" color="success" class="custom-button">
+        Crear Viaje
+      </ion-button>
+      <ion-button expand="block" (click)="verHistorial()" color="success" class="custom-button">
+        Ver Historial
+      </ion-button>
+      <ion-button expand="block" routerLink="/role-selection" color="primary" class="custom-button">
+        Volver
+      </ion-button>
+    </div>
 
-      <ion-item>
-        <ion-label position="floating">Destino</ion-label>
-        <ion-input [(ngModel)]="destino" type="text"></ion-input>
-      </ion-item>
+    <div id="map" style="width: 100%; height: 300px; margin-top: 20px;"></div>
 
-      <ion-item>
-        <ion-label position="floating">Hora de Salida</ion-label>
-        <ion-datetime displayFormat="HH:mm" [(ngModel)]="horaSalida"></ion-datetime>
-      </ion-item>
-
-      <ion-item>
-        <ion-label position="floating">Capacidad Total</ion-label>
-        <ion-input [(ngModel)]="capacidadTotal" type="number"></ion-input>
-      </ion-item>
-
-      <ion-item>
-        <ion-label position="floating">Costo por Persona</ion-label>
-        <ion-input [(ngModel)]="costoPorPersona" type="number"></ion-input>
-      </ion-item>
-
-      <ion-item>
-        <ion-label position="floating">Patente</ion-label>
-        <ion-input [(ngModel)]="patente" type="text"></ion-input>
-      </ion-item>
-
-      <ion-item>
-        <ion-label position="floating">Modelo de Auto</ion-label>
-        <ion-input [(ngModel)]="modeloAuto" type="text"></ion-input>
-      </ion-item>
-
-      <ion-button expand="block" (click)="programarViaje()">Crear Oferta</ion-button>
-    </ion-list>
-  </div>
-
-  <!-- Vista para Ver Solicitudes -->
-  <div *ngIf="mostrarVerSolicitudesForm">
-    <ion-list>
-      <ion-item *ngFor="let solicitud of solicitudes">
-        <ion-label>
-          <h2>Pasajero: {{ solicitud.pasajero }}</h2>
-          <p>Viaje: {{ solicitud.oferta.partida }} -> {{ solicitud.oferta.destino }}</p>
-          <p>Asientos ocupados: {{ solicitud.oferta.asientosOcupados }} / {{ solicitud.oferta.capacidadTotal }}</p>
-        </ion-label>
-      </ion-item>
-    </ion-list>
+    <div class="footer">
+      <p>Gestiona tus viajes de forma sencilla y rápida.</p>
+    </div>
   </div>
 </ion-content>

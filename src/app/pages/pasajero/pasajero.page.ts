@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import { OfertasService } from '../../services/ofertas.service'; // Importar el servicio
-import { AlertController } from '@ionic/angular'; // Para mostrar alertas
+import { AngularFirestore } from '@angular/fire/compat/firestore';
+import { AngularFireAuth } from '@angular/fire/compat/auth';
+import { AlertController, NavController } from '@ionic/angular';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-pasajero',
@@ -8,34 +10,53 @@ import { AlertController } from '@ionic/angular'; // Para mostrar alertas
   styleUrls: ['./pasajero.page.scss'],
 })
 export class PasajeroPage implements OnInit {
-  ofertas: any[] = [];
-  pasajero: string = 'Juan Pérez'; // Puedes cambiar esto para ser dinámico
+  viajes$: Observable<any[]> = new Observable();
 
   constructor(
-    private ofertasService: OfertasService,
-    private alertController: AlertController // Inyectar el AlertController para mostrar mensajes
+    private firestore: AngularFirestore,
+    private afAuth: AngularFireAuth,
+    private alertController: AlertController,
+    private navCtrl: NavController
   ) {}
 
   ngOnInit() {
-    // Obtener las ofertas cuando se carga la página
-    this.ofertas = this.ofertasService.obtenerOfertas();
+    this.viajes$ = this.firestore.collection('viajes', ref => ref.where('estado', '==', 'pendiente')).valueChanges({ idField: 'id' });
   }
 
-  // Método para que el pasajero tome una oferta
+  // Método para tomar una oferta
   async tomarOferta(oferta: any) {
-    // Eliminar la oferta y registrar la solicitud en el servicio
-    this.ofertasService.tomarOferta(oferta, this.pasajero);
+    const user = await this.afAuth.currentUser;
+    if (user) {
+      try {
+        // Actualizar el estado del viaje a "aceptado"
+        await this.firestore.collection('viajes').doc(oferta.id).update({
+          pasajeroId: user.uid,
+          estado: 'aceptado'
+        });
 
-    // Mostrar mensaje de confirmación
-    const alert = await this.alertController.create({
-      header: 'Oferta Tomada',
-      message: `Has tomado la oferta de ${oferta.partida} a ${oferta.destino}.`,
-      buttons: ['OK']
-    });
+        // Asegúrate de tener las coordenadas correctas de partida y destino
+        const partida = oferta.partidaCoords;  // Asegúrate de que oferta tiene las coordenadas de partida
+        const destino = oferta.destinoCoords;  // Asegúrate de que oferta tiene las coordenadas de destino
 
-    await alert.present();
+        // Navegar a la página de mapa pasando las coordenadas
+        this.navCtrl.navigateForward('/map', {
+          queryParams: { 
+            partida: JSON.stringify(partida), 
+            destino: JSON.stringify(destino) 
+          },
+        });
 
-    // Actualizar la lista de ofertas después de tomar una
-    this.ofertas = this.ofertasService.obtenerOfertas();
+        // Mostrar mensaje de confirmación
+        const alert = await this.alertController.create({
+          header: 'Oferta Tomada',
+          message: `Has tomado la oferta de ${oferta.partida} a ${oferta.destino}.`,
+          buttons: ['OK']
+        });
+        await alert.present();
+        
+      } catch (error) {
+        console.error('Error al tomar la oferta:', error);
+      }
+    }
   }
 }

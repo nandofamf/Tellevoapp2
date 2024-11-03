@@ -7,17 +7,25 @@
   </ion-toolbar>
 </ion-header>
 
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Viajes Disponibles</ion-title>
+  </ion-toolbar>
+</ion-header>
+
 <ion-content>
   <ion-list>
-    <ion-item *ngFor="let oferta of ofertas">
+    <ion-item *ngFor="let viaje of viajes$ | async">
       <ion-label>
-        <h2>{{ oferta.partida }} -> {{ oferta.destino }}</h2>
-        <p>Hora de salida: {{ oferta.horaSalida }}</p>
-        <p>Capacidad Total: {{ oferta.capacidadTotal }}</p>
-        <p>Costo por persona: {{ oferta.costoPorPersona }}</p>
-        <p>Cupos ocupados: {{ oferta.asientosOcupados }} / {{ oferta.capacidadTotal }}</p>
+        <h2>{{ viaje.partida }} -> {{ viaje.destino }}</h2>
+        <p>Hora de salida: {{ viaje.horaSalida }}</p>
+        <p>Capacidad Total: {{ viaje.capacidadTotal }}</p>
+        <p>Costo por persona: {{ viaje.costoPorPersona }}</p>
+        <p>Cupos ocupados: {{ viaje.asientosOcupados }} / {{ viaje.capacidadTotal }}</p>
       </ion-label>
-      <ion-button fill="outline" (click)="tomarOferta(oferta)">Tomar</ion-button>
+      <!-- Pasar el objeto completo 'viaje' al método tomarOferta -->
+      <ion-button fill="outline" (click)="tomarOferta(viaje)">Tomar</ion-button>
     </ion-item>
   </ion-list>
 </ion-content>
+
