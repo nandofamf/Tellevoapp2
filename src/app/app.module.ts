@@ -17,6 +17,9 @@ import { HttpClientModule } from '@angular/common/http'; // <-- Importa HttpClie
 // Environment
 import { environment } from '../environments/environment';
 
+// Services
+import { MapsService } from './services/maps.service'; // <-- Importa el servicio MapsService
+
 @NgModule({
   declarations: [AppComponent],
   imports: [
@@ -26,10 +29,11 @@ import { environment } from '../environments/environment';
     AngularFireModule.initializeApp(environment.firebaseConfig),
     AngularFireAuthModule,
     AngularFirestoreModule,
-    HttpClientModule // <-- Agrega HttpClientModule aquí
+    HttpClientModule // <-- Añade HttpClientModule aquí
   ],
   providers: [
-    { provide: RouteReuseStrategy, useClass: IonicRouteStrategy }
+    { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
+    MapsService // <-- Proveedor del servicio MapsService
   ],
   bootstrap: [AppComponent],
 })

@@ -5,12 +5,12 @@ import { PasajeroPage } from './pasajero.page';
 const routes: Routes = [
   {
     path: '',
-    component: PasajeroPage, 
-  },
+    component: PasajeroPage
+  }
 ];
 
 @NgModule({
   imports: [RouterModule.forChild(routes)],
   exports: [RouterModule],
 })
-export class PasajeroRoutingModule {}
+export class PasajeroPageRoutingModule {}  // Nombre correcto del módulo de enrutamiento

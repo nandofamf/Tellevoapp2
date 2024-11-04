@@ -1,8 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { environment } from '../../../environments/environment';
-import * as mapboxgl from 'mapbox-gl';
+import mapboxgl from 'mapbox-gl';
+import { environment } from 'src/environments/environment';
 import { ViajeService } from '../../services/viaje.service';
-import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-conductor',
@@ -11,67 +10,77 @@ import { Router } from '@angular/router';
 })
 export class ConductorPage implements OnInit {
   map!: mapboxgl.Map;
-  asientos!: number;
-  costo!: number;
-  partida!: [number, number];
-  destinoCoord!: [number, number];
-  pasajeros: any[] = [];
+  partida: [number, number] = [-74.006, 40.7128];
+  destinoCoord: [number, number] = [-73.935242, 40.73061];
+  pasajeros: any[] = []; // Cambié Pasajero[] por any[]
 
-  constructor(private viajeService: ViajeService, private router: Router) {}
+  constructor(private viajeService: ViajeService) {}
 
   ngOnInit() {
-    // Esperar a que el contenedor 'map' esté disponible
-    setTimeout(() => {
-      this.inicializarMapa();
-      this.obtenerViajes();
-    }, 1000);
+    this.inicializarMapa();
+    this.obtenerPasajeros();
   }
 
   inicializarMapa() {
-    // Verificar si el contenedor existe antes de crear el mapa
-    if (document.getElementById('map')) {
-      (mapboxgl as any).accessToken = environment.mapbox.accessToken;
-      this.map = new mapboxgl.Map({
-        container: 'map', // id del contenedor en el HTML
-        style: 'mapbox://styles/mapbox/streets-v11',
-        center: [-74.006, 40.7128], // Coordenadas iniciales (puedes cambiarlas)
-        zoom: 12,
-      });
-    } else {
-      console.error("El contenedor 'map' no fue encontrado.");
-    }
-  }
+    (mapboxgl as any).accessToken = environment.mapbox.accessToken; // Asignación del accessToken de Mapbox
+    this.map = new mapboxgl.Map({
+      container: 'map',
+      style: 'mapbox://styles/mapbox/streets-v11',
+      center: this.partida,
+      zoom: 12,
+    });
 
-  crearViaje() {
-    if (!this.asientos || !this.costo || !this.partida || !this.destinoCoord) {
-      console.error('Complete todos los campos antes de crear un viaje.');
-      return;
-    }
-
-    const viaje = {
-      asientos: this.asientos,
-      costo: this.costo,
-      partida: this.partida,
-      destino: this.destinoCoord,
-      pasajeros: [],
-    };
-
-    this.viajeService.crearViaje(viaje)
-      .then(() => {
-        console.log('Viaje creado exitosamente');
-      })
-      .catch((error) => {
-        console.error('Error al crear el viaje:', error);
-      });
-  }
-
-  obtenerViajes() {
-    this.viajeService.obtenerViajes().subscribe((viajes: any[]) => {
-      this.pasajeros = viajes.reduce((acc, viaje) => acc.concat(viaje.pasajeros), []);
+    this.map.on('load', () => {
+      this.agregarMarcador(this.partida, 'Partida');
+      this.agregarMarcador(this.destinoCoord, 'Destino');
+      this.dibujarRuta(); // Asegúrate de dibujar la ruta después de que el mapa haya cargado
     });
   }
 
-  verHistorial() {
-    this.router.navigate(['/historial']);
+  agregarMarcador(coordenadas: [number, number], titulo: string) {
+    new mapboxgl.Marker()
+      .setLngLat(coordenadas)
+      .setPopup(new mapboxgl.Popup().setText(titulo))
+      .addTo(this.map);
+  }
+
+  obtenerPasajeros() {
+    this.viajeService.obtenerPasajeros().subscribe((pasajeros: any[]) => {
+      this.pasajeros = pasajeros;
+    });
+  }
+
+  dibujarRuta() {
+    const ruta: GeoJSON.Feature<GeoJSON.Geometry> = {
+      type: 'Feature',
+      properties: {},
+      geometry: {
+        type: 'LineString',
+        coordinates: [this.partida, this.destinoCoord],
+      },
+    };
+
+    if (this.map.getSource('route')) {
+      (this.map.getSource('route') as mapboxgl.GeoJSONSource).setData(ruta as any);
+    } else {
+      this.map.addSource('route', {
+        type: 'geojson',
+        data: ruta,
+      });
+
+      this.map.addLayer({
+        id: 'route',
+        type: 'line',
+        source: 'route',
+        layout: {
+          'line-join': 'round',
+          'line-cap': 'round',
+        },
+        paint: {
+          'line-color': '#007aff',
+          'line-width': 4,
+        },
+      });
+    }
   }
 }

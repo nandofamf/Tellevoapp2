@@ -1,19 +1,19 @@
-import { NgModule } from '@angular/core';
+import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
-import { PasajeroRoutingModule } from './pasajero-routing.module';
+
+import { PasajeroPageRoutingModule } from './pasajero-routing.module'; // Importación corregida
 import { PasajeroPage } from './pasajero.page';
-import { HttpClientModule } from '@angular/common/http'; // Importa HttpClientModule
 
 @NgModule({
   imports: [
     CommonModule,
     FormsModule,
     IonicModule,
-    PasajeroRoutingModule,
-    HttpClientModule // Asegúrate de agregar HttpClientModule aquí
+    PasajeroPageRoutingModule // Importación corregida
   ],
-  declarations: [PasajeroPage]
+  declarations: [PasajeroPage],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA] // Añadido para reconocer los elementos de Ionic
 })
-export class PasajeroModule {}
+export class PasajeroPageModule {}  // Nombre correcto del módulo

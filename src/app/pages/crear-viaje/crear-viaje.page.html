@@ -1,0 +1,41 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Crear Viaje</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-item>
+    <ion-label position="floating">Dirección de Partida</ion-label>
+    <ion-input [(ngModel)]="direccionPartida"></ion-input>
+  </ion-item>
+
+  <ion-item>
+    <ion-label position="floating">Dirección de Destino</ion-label>
+    <ion-input [(ngModel)]="direccionDestino"></ion-input>
+  </ion-item>
+
+  <ion-item>
+    <ion-label position="floating">Capacidad del Auto</ion-label>
+    <ion-input [(ngModel)]="capacidad" type="number"></ion-input>
+  </ion-item>
+
+  <ion-item>
+    <ion-label position="floating">Valor por Asiento</ion-label>
+    <ion-input [(ngModel)]="costo" type="number"></ion-input>
+  </ion-item>
+
+  <ion-item>
+    <ion-label position="floating">Patente del Auto</ion-label>
+    <ion-input [(ngModel)]="patente"></ion-input>
+  </ion-item>
+
+  <ion-item>
+    <ion-label position="floating">Modelo del Auto</ion-label>
+    <ion-input [(ngModel)]="modelo"></ion-input>
+  </ion-item>
+
+  <ion-button expand="block" color="success" (click)="crearViaje()">Crear Viaje</ion-button>
+  
+  <div id="map" style="height: 300px;"></div>
+</ion-content>

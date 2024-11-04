@@ -31,7 +31,11 @@
                 "output": "./svg"
               }
             ],
-            "styles": ["src/global.scss", "src/theme/variables.scss"],
+            "styles": [
+              "src/global.scss",
+              "src/theme/variables.scss",
+              "node_modules/mapbox-gl/dist/mapbox-gl.css"
+            ],
             "scripts": []
           },
           "configurations": {
@@ -68,7 +72,8 @@
               "progress": false
             }
           },
-          "defaultConfiguration": "production"
+          "defaultConfiguration": "production",
+          "allowedCommonJsDependencies": ["mapbox-gl"] 
         },
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
@@ -111,7 +116,12 @@
                 "output": "./svg"
               }
             ],
-            "styles": ["src/global.scss", "src/theme/variables.scss","node_modules/leaflet/dist/leaflet.css"],
+            "styles": [
+              "src/global.scss",
+              "src/theme/variables.scss",
+              "node_modules/leaflet/dist/leaflet.css",
+              "node_modules/mapbox-gl/dist/mapbox-gl.css" 
+            ],
             "scripts": []
           },
           "configurations": {

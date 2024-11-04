@@ -20,4 +20,8 @@ export class ViajeService {
   actualizarViaje(id: string, data: any): Promise<void> {
     return this.firestore.collection('viajes').doc(id).update(data);
   }
+
+  obtenerPasajeros(): Observable<any[]> {
+    return this.firestore.collection('pasajeros').valueChanges();
+  }
 }
