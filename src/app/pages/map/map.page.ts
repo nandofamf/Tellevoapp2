@@ -10,16 +10,31 @@ import * as mapboxgl from 'mapbox-gl';
 export class MapPage implements OnInit {
   partida: [number, number] = [0, 0]; // Coordenadas de partida
   destino: [number, number] = [0, 0]; // Coordenadas de destino
+<<<<<<< HEAD
   map: mapboxgl.Map | undefined;
+=======
+  map!: mapboxgl.Map; // Utiliza la declaración estricta
+>>>>>>> main
 
   constructor(private route: ActivatedRoute) {}
 
   ngOnInit() {
     this.route.queryParams.subscribe(params => {
+<<<<<<< HEAD
       this.partida = JSON.parse(params['partida']);
       this.destino = JSON.parse(params['destino']);
       
       if (Array.isArray(this.partida) && Array.isArray(this.destino)) {
+=======
+      try {
+        this.partida = JSON.parse(params['partida']);
+        this.destino = JSON.parse(params['destino']);
+      } catch (error) {
+        console.error('Error al parsear coordenadas:', error);
+      }
+      
+      if (this.isValidCoordinates(this.partida) && this.isValidCoordinates(this.destino)) {
+>>>>>>> main
         this.initializeMap();
       } else {
         console.error('Formato incorrecto de coordenadas:', this.partida, this.destino);
@@ -46,6 +61,17 @@ export class MapPage implements OnInit {
       .setLngLat(this.destino)
       .addTo(this.map);
 
+<<<<<<< HEAD
     this.map.fitBounds([this.partida, this.destino], { padding: 50 });
   }
+=======
+    // Ajustar el mapa para que ambos puntos sean visibles
+    this.map.fitBounds([this.partida, this.destino], { padding: 50 });
+  }
+
+  isValidCoordinates(coords: any): coords is [number, number] {
+    return Array.isArray(coords) && coords.length === 2 &&
+           typeof coords[0] === 'number' && typeof coords[1] === 'number';
+  }
+>>>>>>> main
 }

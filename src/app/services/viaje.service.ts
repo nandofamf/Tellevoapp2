@@ -8,6 +8,17 @@ import { Observable } from 'rxjs';
 export class ViajeService {
   constructor(private firestore: AngularFirestore) {}
 
+<<<<<<< HEAD
+=======
+  obtenerHistorialConductor(): Observable<any[]> {
+    return this.firestore.collection('viajesConductor').valueChanges();
+  }
+
+  obtenerHistorialPasajero(): Observable<any[]> {
+    return this.firestore.collection('viajesPasajero').valueChanges();
+  }
+
+>>>>>>> main
   crearViaje(viaje: any): Promise<void> {
     const id = this.firestore.createId();
     return this.firestore.collection('viajes').doc(id).set(viaje);
@@ -24,4 +35,24 @@ export class ViajeService {
   obtenerPasajeros(): Observable<any[]> {
     return this.firestore.collection('pasajeros').valueChanges();
   }
+<<<<<<< HEAD
+=======
+
+  obtenerPasajerosEnTiempoReal(conductorId: string): Observable<any[]> {
+    return this.firestore.collection('historial', ref => 
+      ref.where('conductorId', '==', conductorId).where('estado', '==', 'pendiente')
+    ).valueChanges({ idField: 'id' });
+  }
+
+  actualizarSolicitudPasajero(id: string, data: any): Promise<void> {
+    return this.firestore.collection('historial').doc(id).update(data);
+  }
+
+  // Nuevo método para obtener el viaje del conductor actual
+  obtenerViajeConductor(conductorId: string): Observable<any> {
+    return this.firestore.collection('viajes', ref => 
+      ref.where('conductorId', '==', conductorId).limit(1)
+    ).valueChanges({ idField: 'id' });
+  }
+>>>>>>> main
 }

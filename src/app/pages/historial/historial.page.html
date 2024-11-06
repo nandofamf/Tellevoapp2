@@ -1,9 +1,17 @@
 <ion-header>
+<<<<<<< HEAD
   <ion-toolbar color="dark"> 
     <ion-buttons slot="start">
       <ion-back-button defaultHref="/role-selection"></ion-back-button> 
     </ion-buttons>
     <ion-title>Historial de solicitudes</ion-title>
+=======
+  <ion-toolbar color="dark">
+    <ion-title>Historial de solicitudes</ion-title>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/role-selection"></ion-back-button>
+    </ion-buttons>
+>>>>>>> main
   </ion-toolbar>
 </ion-header>
 
@@ -20,7 +28,11 @@
   <div *ngIf="selectedRole === 'conductor'">
     <ion-card *ngFor="let viaje of viajesConductor">
       <ion-card-header>
+<<<<<<< HEAD
         <ion-card-title>Viaje del {{ viaje.fecha }}</ion-card-title>
+=======
+        <ion-card-title>Viaje del {{ viaje.fecha | date:'medium' }}</ion-card-title>
+>>>>>>> main
       </ion-card-header>
       <ion-card-content>
         <p><strong>Origen:</strong> {{ viaje.origen }}</p>
@@ -28,12 +40,22 @@
         <p><strong>Ganancias:</strong> ${{ viaje.ganancias }}</p>
       </ion-card-content>
     </ion-card>
+<<<<<<< HEAD
+=======
+    <ion-button expand="block" color="danger" (click)="limpiarHistorialConductor()">
+      Limpiar Historial de Conductor
+    </ion-button>
+>>>>>>> main
   </div>
 
   <div *ngIf="selectedRole === 'pasajero'">
     <ion-card *ngFor="let viaje of viajesPasajero">
       <ion-card-header>
+<<<<<<< HEAD
         <ion-card-title>Viaje del {{ viaje.fecha }}</ion-card-title>
+=======
+        <ion-card-title>Viaje del {{ viaje.fecha | date:'medium' }}</ion-card-title>
+>>>>>>> main
       </ion-card-header>
       <ion-card-content>
         <p><strong>Origen:</strong> {{ viaje.origen }}</p>
@@ -41,5 +63,19 @@
         <p><strong>Costo:</strong> ${{ viaje.costo }}</p>
       </ion-card-content>
     </ion-card>
+<<<<<<< HEAD
+=======
+    <ion-button expand="block" color="danger" (click)="limpiarHistorialPasajero()">
+      Limpiar Historial de Pasajero
+    </ion-button>
+  </div>
+
+  <div *ngIf="!viajesConductor.length && selectedRole === 'conductor'">
+    <p>No hay viajes en el historial de conductor.</p>
+  </div>
+
+  <div *ngIf="!viajesPasajero.length && selectedRole === 'pasajero'">
+    <p>No hay viajes en el historial de pasajero.</p>
+>>>>>>> main
   </div>
 </ion-content>

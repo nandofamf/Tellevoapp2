@@ -4,12 +4,21 @@
       <ion-back-button defaultHref="/role-selection"></ion-back-button> 
     </ion-buttons>
     <ion-title>Pasajero</ion-title>
+<<<<<<< HEAD
   </ion-toolbar>
 </ion-header>
 
 <ion-header>
   <ion-toolbar>
     <ion-title>Viajes Disponibles</ion-title>
+=======
+    <ion-buttons slot="end">
+      <ion-button fill="solid" color="primary" size="small" (click)="actualizarViajes()">
+        <ion-icon name="refresh-outline" slot="start"></ion-icon>
+        Actualizar
+      </ion-button>
+    </ion-buttons>
+>>>>>>> main
   </ion-toolbar>
 </ion-header>
 
@@ -17,6 +26,7 @@
   <ion-list>
     <ion-item *ngFor="let viaje of viajes$ | async">
       <ion-label>
+<<<<<<< HEAD
         <h2>{{ viaje.partida }} -> {{ viaje.destino }}</h2>
         <p>Hora de salida: {{ viaje.horaSalida }}</p>
         <p>Capacidad Total: {{ viaje.capacidadTotal }}</p>
@@ -29,3 +39,17 @@
   </ion-list>
 </ion-content>
 
+=======
+        <h2>{{ viaje.direccionPartida.place_name }} → {{ viaje.direccionDestino.place_name }}</h2>
+        <p>Hora de salida: {{ viaje.horaSalida | date:'shortTime' }}</p>
+        <p>Capacidad Total: {{ viaje.capacidad }}</p>
+        <p>Costo por persona: ${{ viaje.costo }}</p>
+        <p>Cupos ocupados: {{ viaje.asientosOcupados }} / {{ viaje.capacidad }}</p>
+      </ion-label>
+      <ion-button slot="end" fill="outline" color="secondary" (click)="tomarOferta(viaje)">Tomar</ion-button>
+    </ion-item>
+  </ion-list>
+  
+  <ion-label *ngIf="(viajes$ | async)?.length === 0" class="ion-padding">No hay viajes disponibles.</ion-label>
+</ion-content>
+>>>>>>> main

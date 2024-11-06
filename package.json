@@ -30,7 +30,13 @@
     "@capacitor/keyboard": "6.0.2",
     "@capacitor/status-bar": "6.0.1",
     "@ionic/angular": "^8.3.1",
+<<<<<<< HEAD
     "firebase": "^11.0.1",
+=======
+    "@ionic/storage-angular": "^4.0.0",
+    "axios": "^1.7.7",
+    "firebase": "^9.0.0",
+>>>>>>> main
     "ionicons": "^7.0.0",
     "leaflet": "^1.9.4",
     "mapbox-gl": "^3.7.0",
@@ -51,6 +57,10 @@
     "@angular/language-service": "^18.0.0",
     "@capacitor/cli": "6.1.2",
     "@ionic/angular-toolkit": "^11.0.1",
+<<<<<<< HEAD
+=======
+    "@types/geojson": "^7946.0.14",
+>>>>>>> main
     "@types/jasmine": "~5.1.0",
     "@types/leaflet": "^1.9.12",
     "@typescript-eslint/eslint-plugin": "^6.0.0",
