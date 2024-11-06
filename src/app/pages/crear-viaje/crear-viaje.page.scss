@@ -1,0 +1,26 @@
+.input-item {
+  margin-bottom: 15px; // Espaciado entre campos de entrada
+}
+
+.suggestions-list {
+  margin-top: -10px; // Reduce el espacio entre el input y la lista de sugerencias
+  margin-bottom: 15px; // Añade espacio después de la lista
+}
+
+.create-button {
+  margin-top: 20px; // Añade espacio antes del botón
+  margin-bottom: 20px; // Añade espacio después del botón
+}
+
+.map-container {
+  height: 50vh; // Mapa más grande y responsivo
+  border-radius: 10px; // Bordes redondeados para el mapa
+  overflow: hidden; // Asegura que el contenido no se desborde
+  margin-bottom: 20px; // Espaciado adicional al final
+}
+
+ion-note {
+  font-size: 12px;
+  margin-top: 5px;
+  color: red;
+}

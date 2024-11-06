@@ -1,0 +1,37 @@
+<ion-header>
+  <ion-toolbar color="light">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/role-selection"></ion-back-button>
+    </ion-buttons>
+    <ion-title class="ion-text-center">Perfil</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content style="--background: #001F3F;">
+  <div class="profile-container">
+    <ion-icon name="person-outline" class="profile-icon"></ion-icon>
+
+    <!-- Mostrar el nombre completo -->
+    <h2 class="profile-name">{{ usuario.username }}</h2>
+    <p class="profile-email">{{ usuario.email }}</p>
+    <p class="profile-phone">Teléfono: {{ usuario.telefono }}</p>
+
+    <!-- Botón para editar perfil -->
+    <ion-button expand="block" color="success" class="edit-button" (click)="editarPerfil()">
+      <ion-icon name="create-outline" slot="start"></ion-icon>
+      Editar Perfil
+    </ion-button>
+
+    <!-- Botón para cambiar contraseña -->
+    <ion-button expand="block" color="warning" class="change-password-button" (click)="cambiarContrasena()">
+      <ion-icon name="lock-closed-outline" slot="start"></ion-icon>
+      Cambiar Contraseña
+    </ion-button>
+
+    <!-- Botón para cerrar sesión -->
+    <ion-button expand="block" color="danger" (click)="cerrarSesion()">
+      <ion-icon slot="start" name="log-out-outline"></ion-icon>
+      Cerrar Sesión
+    </ion-button>
+  </div>
+</ion-content>
