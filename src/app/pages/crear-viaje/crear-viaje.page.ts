@@ -26,6 +26,8 @@ export class CrearViajePage implements OnInit {
 
   lugaresPartida: any[] = [];
   lugaresDestino: any[] = [];
+  partidaMarker!: mapboxgl.Marker;
+  destinoMarker!: mapboxgl.Marker;
 
   constructor(
     private firestore: AngularFirestore,
@@ -43,7 +45,7 @@ export class CrearViajePage implements OnInit {
   ionViewDidEnter() {
     setTimeout(() => {
       this.inicializarMapa();
-    }, 300); // Retraso para asegurarse de que el contenedor esté completamente renderizado
+    }, 300); // Retraso para asegurar que el contenedor esté renderizado
   }
 
   inicializarMapa() {
@@ -54,15 +56,36 @@ export class CrearViajePage implements OnInit {
       this.map = new mapboxgl.Map({
         container: 'map-crear-viaje',
         style: 'mapbox://styles/mapbox/streets-v11',
-        center: [-70.64827, -33.45694], // Coordenadas iniciales
+        center: [-70.64827, -33.45694], // Coordenadas iniciales (Santiago, Chile)
         zoom: 10,
       });
 
       this.map.on('load', () => {
-        this.map.resize(); // Forzar redimensión del mapa
+        this.map.resize(); // Redimensiona el mapa cuando se carga
       });
+
+      this.map.on('click', (event) => this.establecerMarcador(event.lngLat));
     } else {
       console.error('Contenedor del mapa no encontrado');
+    }
+  }
+
+  establecerMarcador(lngLat: mapboxgl.LngLat) {
+    if (!this.direccionPartida.lat && !this.direccionPartida.lng) {
+      // Establecer partida
+      this.direccionPartida = { lat: lngLat.lat, lng: lngLat.lng };
+      this.partidaMarker = new mapboxgl.Marker({ color: 'blue' })
+        .setLngLat([lngLat.lng, lngLat.lat])
+        .addTo(this.map);
+    } else if (!this.direccionDestino.lat && !this.direccionDestino.lng) {
+      // Establecer destino
+      this.direccionDestino = { lat: lngLat.lat, lng: lngLat.lng };
+      this.destinoMarker = new mapboxgl.Marker({ color: 'red' })
+        .setLngLat([lngLat.lng, lngLat.lat])
+        .addTo(this.map);
+
+      // Dibujar la ruta
+      this.obtenerRuta();
     }
   }
 
@@ -92,23 +115,77 @@ export class CrearViajePage implements OnInit {
       this.direccionPartida = { lat, lng, place_name: lugar.place_name };
       this.direccionPartidaInput = lugar.place_name;
       this.lugaresPartida = [];
+
+      if (this.partidaMarker) this.partidaMarker.remove();
+      this.partidaMarker = new mapboxgl.Marker({ color: 'blue' })
+        .setLngLat([lng, lat])
+        .addTo(this.map);
     } else {
       this.direccionDestino = { lat, lng, place_name: lugar.place_name };
       this.direccionDestinoInput = lugar.place_name;
       this.lugaresDestino = [];
+
+      if (this.destinoMarker) this.destinoMarker.remove();
+      this.destinoMarker = new mapboxgl.Marker({ color: 'red' })
+        .setLngLat([lng, lat])
+        .addTo(this.map);
     }
 
     this.map.flyTo({ center: [lng, lat], zoom: 14 });
-    new mapboxgl.Marker().setLngLat([lng, lat]).addTo(this.map);
 
     if (this.direccionPartida && this.direccionDestino) {
-      this.dibujarRuta();
+      this.obtenerRuta();
     }
   }
 
-  convertirMayusculas(event: any) {
-    this.patente = event.target.value.toUpperCase();
-  }
+  obtenerRuta() {
+    if (
+        this.direccionPartida &&
+        this.direccionPartida.lng !== undefined &&
+        this.direccionPartida.lat !== undefined &&
+        this.direccionDestino &&
+        this.direccionDestino.lng !== undefined &&
+        this.direccionDestino.lat !== undefined
+    ) {
+        const url = `https://api.mapbox.com/directions/v5/mapbox/driving/${this.direccionPartida.lng},${this.direccionPartida.lat};${this.direccionDestino.lng},${this.direccionDestino.lat}?geometries=geojson&access_token=${environment.mapbox.accessToken}`;
+
+        this.http.get(url).subscribe(
+            (response: any) => {
+                const ruta = response.routes[0].geometry;
+
+                if (this.map.getSource('route')) {
+                    (this.map.getSource('route') as mapboxgl.GeoJSONSource).setData(ruta);
+                } else {
+                    this.map.addSource('route', {
+                        type: 'geojson',
+                        data: ruta,
+                    });
+
+                    this.map.addLayer({
+                        id: 'route',
+                        type: 'line',
+                        source: 'route',
+                        layout: {
+                            'line-join': 'round',
+                            'line-cap': 'round',
+                        },
+                        paint: {
+                            'line-color': '#007aff',
+                            'line-width': 4,
+                            'line-dasharray': [2, 2], // Línea de puntos
+                        },
+                    });
+                }
+            },
+            (error) => {
+                console.error("Error al obtener la ruta:", error);
+            }
+        );
+    } else {
+        console.warn("Las coordenadas de partida o destino no están definidas.");
+    }
+}
+
 
   async crearViaje() {
     const currentUser = await this.auth.currentUser;
@@ -144,7 +221,6 @@ export class CrearViajePage implements OnInit {
     };
 
     try {
-      console.log('Datos del viaje:', viaje);
       await this.firestore.collection('viajes').add(viaje);
 
       const alert = await this.alertController.create({
@@ -154,10 +230,8 @@ export class CrearViajePage implements OnInit {
       });
       await alert.present();
 
-      // Navegar de vuelta al panel del conductor
       this.navCtrl.navigateBack('/conductor');
     } catch (error) {
-      console.error('Error creando el viaje:', error);
       const alert = await this.alertController.create({
         header: 'Error',
         message: 'Hubo un error al crear el viaje. Intenta nuevamente.',
@@ -167,44 +241,7 @@ export class CrearViajePage implements OnInit {
     }
   }
 
-  volverAtras() {
-    this.navCtrl.navigateBack('/conductor'); // Navegar a 'conductor'
-  }
-
-  dibujarRuta() {
-    const ruta: Feature<LineString> = {
-      type: 'Feature',
-      geometry: {
-        type: 'LineString',
-        coordinates: [
-          [this.direccionPartida.lng, this.direccionPartida.lat],
-          [this.direccionDestino.lng, this.direccionDestino.lat],
-        ],
-      },
-      properties: {},
-    };
-
-    if (this.map.getSource('route')) {
-      (this.map.getSource('route') as mapboxgl.GeoJSONSource).setData(ruta);
-    } else {
-      this.map.addSource('route', {
-        type: 'geojson',
-        data: ruta,
-      });
-
-      this.map.addLayer({
-        id: 'route',
-        type: 'line',
-        source: 'route',
-        layout: {
-          'line-join': 'round',
-          'line-cap': 'round',
-        },
-        paint: {
-          'line-color': '#007aff',
-          'line-width': 4,
-        },
-      });
-    }
+  convertirMayusculas(event: any) {
+    this.patente = event.target.value.toUpperCase();
   }
 }

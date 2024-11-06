@@ -5,7 +5,7 @@
       <ion-back-button defaultHref="/role-selection"></ion-back-button>
     </ion-buttons>
     <ion-buttons slot="end">
-      <ion-button (click)="actualizarLista()" color="primary">
+      <ion-button (click)="ngOnInit()" color="primary">
         <ion-icon name="refresh"></ion-icon>
       </ion-button>
       <ion-button routerLink="/perfil">
@@ -17,6 +17,19 @@
 
 <ion-content color="dark" fullscreen>
   <div id="map" style="width: 100%; height: 50vh; margin-top: 10px;"></div>
+
+  <ion-card *ngIf="viaje" class="info-card">
+    <ion-card-header>
+      <ion-card-title class="card-title">Detalle del Viaje</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <p><strong>Partida:</strong> {{ viaje.direccionPartida?.place_name }} - <strong>Destino:</strong> {{ viaje.direccionDestino?.place_name }}</p>
+      <p><strong>Capacidad:</strong> {{ viaje.capacidad }}</p>
+      <p><strong>Costo por asiento:</strong> ${{ viaje.costo }}</p>
+      <p><strong>Modelo del Auto:</strong> {{ viaje.modelo }}</p>
+      <p><strong>Patente:</strong> {{ viaje.patente }}</p>
+    </ion-card-content>
+  </ion-card>
 
   <ion-card class="info-card">
     <ion-card-header>

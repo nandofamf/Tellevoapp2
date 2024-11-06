@@ -2,10 +2,11 @@ import { Component, OnInit } from '@angular/core';
 import mapboxgl from 'mapbox-gl';
 import { environment } from 'src/environments/environment';
 import { ViajeService } from '../../services/viaje.service';
-import { Geolocation } from '@capacitor/geolocation'; 
-import { AngularFireAuth } from '@angular/fire/compat/auth'; 
+import { Geolocation } from '@capacitor/geolocation';
+import { AngularFireAuth } from '@angular/fire/compat/auth';
 import { AngularFirestore } from '@angular/fire/compat/firestore';
 import { AlertController } from '@ionic/angular';
+import axios from 'axios';
 
 @Component({
   selector: 'app-conductor',
@@ -14,8 +15,9 @@ import { AlertController } from '@ionic/angular';
 })
 export class ConductorPage implements OnInit {
   map!: mapboxgl.Map;
-  partida: [number, number] = [-74.006, 40.7128]; // Coordenadas de partida (ejemplo)
-  destinoCoord: [number, number] = [-73.935242, 40.73061]; // Coordenadas de destino (ejemplo)
+  partida: [number, number] = [-74.006, 40.7128];
+  destinoCoord: [number, number] = [-73.935242, 40.73061];
+  viaje: any = null;
   pasajeros: any[] = [];
   marcadorConductor!: mapboxgl.Marker;
   userId: string | null = null;
@@ -31,6 +33,7 @@ export class ConductorPage implements OnInit {
     const currentUser = await this.auth.currentUser;
     if (currentUser) {
       this.userId = currentUser.uid;
+      this.obtenerViajeConductor();
       this.inicializarMapa();
       this.obtenerPasajeros();
       this.trackRealTimeLocation();
@@ -40,68 +43,101 @@ export class ConductorPage implements OnInit {
   inicializarMapa() {
     (mapboxgl as any).accessToken = environment.mapbox.accessToken;
     this.map = new mapboxgl.Map({
-      container: 'map', // Asegúrate que este ID sea único para cada mapa
-      style: 'mapbox://styles/mapbox/streets-v11', // Estilo del mapa
+      container: 'map',
+      style: 'mapbox://styles/mapbox/streets-v11',
       center: this.partida,
       zoom: 12,
     });
 
     this.map.on('load', () => {
-      this.marcadorConductor = this.agregarMarcador(this.partida, 'Conductor');
-      this.agregarMarcador(this.destinoCoord, 'Destino');
       this.dibujarRuta();
     });
   }
 
-  agregarMarcador(coordenadas: [number, number], titulo: string): mapboxgl.Marker {
-    return new mapboxgl.Marker()
-      .setLngLat(coordenadas)
-      .setPopup(new mapboxgl.Popup().setText(titulo))
-      .addTo(this.map);
+  async dibujarRuta() {
+    try {
+      const response = await axios.get(
+        `https://api.mapbox.com/directions/v5/mapbox/driving/${this.partida[0]},${this.partida[1]};${this.destinoCoord[0]},${this.destinoCoord[1]}`,
+        {
+          params: {
+            access_token: environment.mapbox.accessToken,
+            geometries: 'geojson',
+          },
+        }
+      );
+
+      const route = response.data.routes[0].geometry.coordinates;
+
+      if (this.map.getSource('route')) {
+        (this.map.getSource('route') as mapboxgl.GeoJSONSource).setData({
+          type: 'Feature',
+          properties: {},
+          geometry: {
+            type: 'LineString',
+            coordinates: route,
+          },
+        });
+      } else {
+        this.map.addSource('route', {
+          type: 'geojson',
+          data: {
+            type: 'Feature',
+            properties: {},
+            geometry: {
+              type: 'LineString',
+              coordinates: route,
+            },
+          },
+        });
+
+        this.map.addLayer({
+          id: 'route',
+          type: 'line',
+          source: 'route',
+          layout: {
+            'line-join': 'round',
+            'line-cap': 'round',
+          },
+          paint: {
+            'line-color': '#007aff',
+            'line-width': 4,
+          },
+        });
+      }
+
+      // Agregar marcador en la partida
+      new mapboxgl.Marker({ color: 'blue' })
+        .setLngLat(this.partida)
+        .setPopup(new mapboxgl.Popup().setText('Partida'))
+        .addTo(this.map);
+
+      // Agregar marcador en el destino
+      new mapboxgl.Marker({ color: 'red' })
+        .setLngLat(this.destinoCoord)
+        .setPopup(new mapboxgl.Popup().setText('Destino'))
+        .addTo(this.map);
+    } catch (error) {
+      console.error('Error al obtener la ruta:', error);
+    }
+  }
+
+  obtenerViajeConductor() {
+    if (this.userId) {
+      this.viajeService.obtenerViajes().subscribe((viajes) => {
+        this.viaje = viajes.find((v: any) => v.conductorId === this.userId);
+        if (this.viaje) {
+          this.partida = [this.viaje.direccionPartida.lng, this.viaje.direccionPartida.lat];
+          this.destinoCoord = [this.viaje.direccionDestino.lng, this.viaje.direccionDestino.lat];
+          this.dibujarRuta();
+        }
+      });
+    }
   }
 
   obtenerPasajeros() {
     if (this.userId) {
       this.viajeService.obtenerPasajerosEnTiempoReal(this.userId).subscribe((pasajeros: any[]) => {
         this.pasajeros = pasajeros;
-      });
-    }
-  }
-
-  actualizarLista() {
-    this.obtenerPasajeros(); // Refresca la lista de pasajeros
-  }
-
-  dibujarRuta() {
-    const ruta: GeoJSON.Feature<GeoJSON.Geometry> = {
-      type: 'Feature',
-      properties: {},
-      geometry: {
-        type: 'LineString',
-        coordinates: [this.partida, this.destinoCoord],
-      },
-    };
-
-    if (this.map.getSource('route')) {
-      (this.map.getSource('route') as mapboxgl.GeoJSONSource).setData(ruta as any);
-    } else {
-      this.map.addSource('route', {
-        type: 'geojson',
-        data: ruta,
-      });
-
-      this.map.addLayer({
-        id: 'route',
-        type: 'line',
-        source: 'route',
-        layout: {
-          'line-join': 'round',
-          'line-cap': 'round',
-        },
-        paint: {
-          'line-color': '#007aff',
-          'line-width': 4,
-        },
       });
     }
   }
@@ -123,7 +159,9 @@ export class ConductorPage implements OnInit {
     if (this.marcadorConductor) {
       this.marcadorConductor.setLngLat(nuevaUbicacion);
     } else {
-      this.marcadorConductor = this.agregarMarcador(nuevaUbicacion, 'Conductor');
+      this.marcadorConductor = new mapboxgl.Marker({ color: 'green' })
+        .setLngLat(nuevaUbicacion)
+        .addTo(this.map);
     }
 
     this.map.setCenter(nuevaUbicacion);
@@ -131,39 +169,22 @@ export class ConductorPage implements OnInit {
 
   async aceptarPasajero(pasajero: any) {
     try {
-      // Crear un objeto pedido con los datos necesarios
       const pedido = {
         ...pasajero,
-        conductorId: this.userId, // Asegúrate de que este ID esté presente
+        conductorId: this.userId,
         estado: 'aceptado',
-        fecha: new Date(), // Guarda la fecha del viaje
-        direccionPartida: {
-          lat: this.partida[1],
-          lng: this.partida[0],
-          place_name: 'Partida' // Nombre para mostrar
-        },
-        direccionDestino: {
-          lat: this.destinoCoord[1],
-          lng: this.destinoCoord[0],
-          place_name: 'Destino' // Nombre para mostrar
-        },
-        costo: pasajero.costo // Asegúrate de incluir el costo
+        fecha: new Date(),
       };
-  
-      console.log('Datos del pedido:', pedido); // Agrega un log para verificar el objeto
 
       const batch = this.firestore.firestore.batch();
-      const historialRef = this.firestore.collection('historial').doc().ref; // Crea un nuevo documento
-
-      // Agregar el pedido a la colección de historial
+      const historialRef = this.firestore.collection('historial').doc().ref;
       batch.set(historialRef, pedido);
-  
-      // Eliminar la solicitud del pasajero de la lista
+
       const solicitudRef = this.firestore.collection('historial').doc(pasajero.id).ref;
       batch.delete(solicitudRef);
-  
+
       await batch.commit();
-  
+
       const alert = await this.alertController.create({
         header: 'Éxito',
         message: 'El pasajero ha sido aceptado y registrado en el historial.',
@@ -174,12 +195,10 @@ export class ConductorPage implements OnInit {
       console.error('Error al aceptar el pasajero:', error);
     }
   }
-  
+
   async rechazarPasajero(pasajero: any) {
     try {
-      // Eliminar la solicitud del pasajero rechazado
       await this.firestore.collection('historial').doc(pasajero.id).delete();
-      console.log('Solicitud eliminada:', pasajero.id);
 
       const alert = await this.alertController.create({
         header: 'Rechazado',

@@ -13,7 +13,7 @@
     <ion-input 
       [(ngModel)]="direccionPartidaInput" 
       (ionInput)="buscarLugar('partida', $event)" 
-      placeholder="Buscar dirección de partida">
+      placeholder="">
     </ion-input>
   </ion-item>
 
@@ -28,7 +28,7 @@
     <ion-input 
       [(ngModel)]="direccionDestinoInput" 
       (ionInput)="buscarLugar('destino', $event)" 
-      placeholder="Buscar dirección de destino">
+      placeholder="">
     </ion-input>
   </ion-item>
 
@@ -64,7 +64,7 @@
       [(ngModel)]="patente" 
       (ionInput)="convertirMayusculas($event)" 
       required 
-      placeholder="Ingresa la patente">
+      placeholder="">
     </ion-input>
     <ion-note slot="helper" color="danger" *ngIf="!patente">Este campo es obligatorio</ion-note>
   </ion-item>
@@ -74,7 +74,7 @@
     <ion-input 
       [(ngModel)]="modelo" 
       required 
-      placeholder="Ingresa el modelo del auto">
+      placeholder="">
     </ion-input>
     <ion-note slot="helper" color="danger" *ngIf="!modelo">Este campo es obligatorio</ion-note>
   </ion-item>

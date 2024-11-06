@@ -38,4 +38,15 @@ export class ViajeService {
       ref.where('conductorId', '==', conductorId).where('estado', '==', 'pendiente')
     ).valueChanges({ idField: 'id' });
   }
+
+  actualizarSolicitudPasajero(id: string, data: any): Promise<void> {
+    return this.firestore.collection('historial').doc(id).update(data);
+  }
+
+  // Nuevo método para obtener el viaje del conductor actual
+  obtenerViajeConductor(conductorId: string): Observable<any> {
+    return this.firestore.collection('viajes', ref => 
+      ref.where('conductorId', '==', conductorId).limit(1)
+    ).valueChanges({ idField: 'id' });
+  }
 }
