@@ -40,12 +40,21 @@
 
   <ion-item class="input-item">
     <ion-label position="floating">Capacidad del Auto</ion-label>
-    <ion-input [(ngModel)]="capacidad" type="number" placeholder="Número de asientos"></ion-input>
+    <ion-input 
+      [(ngModel)]="capacidad" 
+      type="number" 
+      placeholder="Número de asientos">
+    </ion-input>
   </ion-item>
 
   <ion-item class="input-item">
     <ion-label position="floating" color="danger">Valor por Asiento</ion-label>
-    <ion-input [(ngModel)]="costo" type="number" required placeholder="Costo por asiento"></ion-input>
+    <ion-input 
+      [(ngModel)]="costo" 
+      type="number" 
+      required 
+      placeholder="Costo por asiento">
+    </ion-input>
     <ion-note slot="helper" color="danger" *ngIf="!costo">Este campo es obligatorio</ion-note>
   </ion-item>
 
@@ -54,14 +63,19 @@
     <ion-input 
       [(ngModel)]="patente" 
       (ionInput)="convertirMayusculas($event)" 
-      required placeholder="Ingresa la patente">
+      required 
+      placeholder="Ingresa la patente">
     </ion-input>
     <ion-note slot="helper" color="danger" *ngIf="!patente">Este campo es obligatorio</ion-note>
   </ion-item>
 
   <ion-item class="input-item">
     <ion-label position="floating">Modelo del Auto</ion-label>
-    <ion-input [(ngModel)]="modelo" required placeholder="Ingresa el modelo del auto"></ion-input>
+    <ion-input 
+      [(ngModel)]="modelo" 
+      required 
+      placeholder="Ingresa el modelo del auto">
+    </ion-input>
     <ion-note slot="helper" color="danger" *ngIf="!modelo">Este campo es obligatorio</ion-note>
   </ion-item>
 

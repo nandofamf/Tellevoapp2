@@ -26,5 +26,6 @@
       <ion-button slot="end" fill="outline" color="secondary" (click)="tomarOferta(viaje)">Tomar</ion-button>
     </ion-item>
   </ion-list>
-  <ion-label *ngIf="(viajes$ | async)?.length === 0">No hay viajes disponibles.</ion-label>
+  
+  <ion-label *ngIf="(viajes$ | async)?.length === 0" class="ion-padding">No hay viajes disponibles.</ion-label>
 </ion-content>
